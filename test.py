@@ -40,13 +40,14 @@ while True:
     cards = driver.find_elements(By.CLASS_NAME, 'listing-item')
     for index,card in enumerate(cards):
         title = card.find_element(By.CLASS_NAME, 'listing-title').text + f" - {index}"
-        safe_folder_name = re.sub(r'[<>:"/\\|?*]', '_', title)
+        title = re.sub(r'[<>:"/\\|?*]', '_', title)
+        
         img_url = card.find_element(By.CLASS_NAME, 'listing-image').get_attribute('data-src')
         img_alt_url = card.find_element(By.CLASS_NAME, 'listing-image').get_attribute('data-alt-src')
         if img_url and img_alt_url:
             try:
                 # 📂 Tạo thư mục riêng cho từng ảnh (theo index)
-                image_folder = os.path.join(save_folder, str(safe_folder_name))
+                image_folder = os.path.join(save_folder, str(title))
                 os.makedirs(image_folder, exist_ok=True)
 
                 # 📄 Đường dẫn file ảnh
