@@ -7,17 +7,27 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+import random
 
 # 🛠 Khởi động WebDriver
 url = 'https://www.cafepress.com/'
 s = Service(r"C:\Program Files (x86)\chromedriver.exe")
-
-driver = webdriver.Chrome(service=s)
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")  # Chạy nền để tăng tốc
+options.add_argument("--disable-gpu")  # Tắt GPU để tránh treo
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-blink-features=AutomationControlled") 
+driver = webdriver.Chrome(service=s, options=options)
 
 driver.get(url)
+# Tìm kết quản tìm kiếm
+search = driver.find_element(By.ID, 'searchInput')
+search.send_keys('customize star phone and tech')
+search.send_keys(Keys.RETURN)
 
 # 📂 Tên file chứa link sản phẩm
-links_file = r"D:\image_crawl\product_links.txt"
+links_file = r"D:\product_links.txt"
 
 # 🔽 Đọc danh sách link cũ từ file (nếu có)
 if os.path.exists(links_file):
@@ -29,14 +39,9 @@ else:
 # 📌 Set để lưu link mới (lọc trùng)
 product_links = set(existing_links)  # Copy link cũ để tránh trùng lặp
 
-# Tìm kết quản tìm kiếm
-search = driver.find_element(By.ID, 'searchInput')
-search.send_keys('dragonball t-shirts')
-search.send_keys(Keys.RETURN)
-page = 1  # Biến đếm số trang
 
 while True:
-    time.sleep(2)
+    time.sleep(random.uniform(1, 2)) 
     listingGroup = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "listingGroup"))
     )
@@ -52,7 +57,6 @@ while True:
     try:
         next_button = driver.find_element(By.CSS_SELECTOR, "#paginationBlock ul li:last-child:not(.disabled) > a")
         next_button.click()
-        page += 1
     except NoSuchElementException:
         print("No more pages.")
         break
