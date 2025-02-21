@@ -20,6 +20,7 @@ save_folder = r"D:\image_crawl"  # Thay đổi đường dẫn theo ý bạn
 
 # 📂 File chứa link sản phẩm
 links_file = r"D:\product_links.txt"
+error_links_file = r"D:\error_urls.txt"
 
 # 🔽 Đọc danh sách link từ file
 with open(links_file, "r", encoding="utf-8") as f:
@@ -48,6 +49,8 @@ def download_image(url, save_path, max_retries=5):
                 return True
             else:
                 print(f"⚠️ Lỗi {response.status_code} khi tải {url}")
+                with open(error_links_file, "a", encoding="utf-8") as f:
+                    f.write(url + "\n")
         except requests.exceptions.RequestException as e:
             print(f"🔄 Thử lại ({retries+1}/{max_retries}): {e}")
         time.sleep(2)  # Chờ 2 giây trước khi thử lại

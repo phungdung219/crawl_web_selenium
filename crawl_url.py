@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -8,6 +9,13 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 import random
+
+# 🛠 Nhận từ khóa từ tham số dòng lệnh
+if len(sys.argv) < 2:
+    print("Usage: python crawl_urls.py <search_keyword>")
+    sys.exit(1)
+search_keyword = sys.argv[1]
+print(f"Searching for: {search_keyword}")
 
 # 🛠 Khởi động WebDriver
 url = 'https://www.cafepress.com/'
@@ -21,10 +29,6 @@ options.add_argument("--disable-blink-features=AutomationControlled")
 driver = webdriver.Chrome(service=s, options=options)
 
 driver.get(url)
-# Tìm kết quản tìm kiếm
-search = driver.find_element(By.ID, 'searchInput')
-search.send_keys('customize star phone and tech')
-search.send_keys(Keys.RETURN)
 
 # 📂 Tên file chứa link sản phẩm
 links_file = r"D:\product_links.txt"
@@ -39,6 +43,11 @@ else:
 # 📌 Set để lưu link mới (lọc trùng)
 product_links = set(existing_links)  # Copy link cũ để tránh trùng lặp
 
+# Tìm kiếm sản phẩm
+search = driver.find_element(By.ID, "searchInput")
+search.send_keys(search_keyword)
+search.send_keys(Keys.RETURN)
+time.sleep(2)
 
 while True:
     time.sleep(random.uniform(1, 2)) 
@@ -52,7 +61,7 @@ while True:
             if product_link:
                 product_links.add(product_link)  # Thêm vào set (tự động lọc trùng)
         except Exception as e:
-            print(f"❌ Lỗi: {e}")
+            print(f" Lỗi: {e}")
     # Tìm và nhấn nút "Next" hoặc "Tiếp theo"
     try:
         next_button = driver.find_element(By.CSS_SELECTOR, "#paginationBlock ul li:last-child:not(.disabled) > a")
@@ -66,7 +75,7 @@ with open(links_file, "w", encoding="utf-8") as f:
     for link in sorted(product_links):  # Sắp xếp để dễ kiểm tra
         f.write(link + "\n")
 
-print(f"✅ Đã lưu {len(product_links)} link vào {links_file}")
+print(f" Đã lưu {len(product_links)} link vào {links_file}")
 
 # Đóng trình duyệt
 driver.quit()
